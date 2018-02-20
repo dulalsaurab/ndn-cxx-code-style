@@ -11,6 +11,43 @@ function listChanges(query) {
       return Promise.resolve(j);
     });
 }
+function getFiles(){
+
+      const util = require('util');
+      const exec = util.promisify(require('child_process').exec);
+      var abc;
+      async function lsExample() {
+        const { stdout, stderr } = await exec('git show --pretty="" --name-only');
+        // console.log('stdout:', stdout);
+        return stdout;
+      }
+      lsExample().then(function(a){
+        var fileList = a.split("\n");
+          abc = fileList;
+          const { exec } = require('child_process');
+          // var comm1 = 'cat gerrit.js';
+          for (s of abc){
+            if (s){
+              var comm1 = 'cat ' + s.toString();
+              console.log(comm1);
+          exec(comm1, (err, stdout, stderr) => {
+            if(err){
+              console.error("bla bla");
+            }
+            console.log(stdout);
+          });
+        }}
+        // for (s of fileList){
+        //   async function lsExample() {
+        //     const { stdout, stderr } = await exec('git show --pretty="" --name-only');
+        //     console.log('stdout:', stdout);
+        //     return stdout;
+        //   }
+        // }
+
+      });
+      console.log(abc);
+}
 
 function fetchFiles(change) {
 
@@ -38,25 +75,26 @@ function fetchFiles(change) {
     .map(function(filename){
       return request('/a/changes/' + change.id + '/revisions/' + currentRev + '/files/' + encodeURIComponent(filename) + '/content')
         .then(function(resp){
-          console.log("*****************************************************");
 
           // execute some command here
-          var exec = require('child_process').exec, child;
-          child = exec('git log -1',
-          function (error, stdout, stderr) {
-            console.log('stdout: ' + stdout);
-            console.log('stderr: ' + stderr);
-          if (error !== null) {
-             console.log('exec error: ' + error);
-        }
-    });
- child();
+          // git --git-dir=ndn-cxx-code-style/.git log -1 executing git command if you are outside of the folder
+          // git show --pretty="" --name-only - get the name of changed files
+          //
+          getFiles();
 
+          //now at this point we have received the file names, let get the file content
+          // });
+          // console.log(a);
+          // for (s of array)
+          // {
+          //   if(s){
+          //     console.log(s);
+          //     var cmd = 'cat ' + s;
+          //
+          //   }
+          // }
 
           var contents = new Buffer(resp.body, 'base64').toString('utf8');
-
-          console.log("*****************************************************");
-
           return Promise.resolve({ filename:filename, contents:contents });
         });
     }));
