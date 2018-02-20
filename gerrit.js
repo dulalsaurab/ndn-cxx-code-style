@@ -5,7 +5,7 @@ var curl = require('./curl');
 var request = curl.request.bind(this, config.GERRIT_ROOT, ['--basic', '--user', [config.GERRIT_USER, config.GERRIT_HTTPPASSWD].join(':')]);
 
 function listChanges(query) {
-  return request('/a/changes/?q=' + encodeURIComponent(query) + '&o=CURRENT_REVISION&o=CURRENT_FILES')
+  return request('/a/changes/?q=4551&o=CURRENT_REVISION&o=CURRENT_FILES')
     .then(function(resp){
       var j = JSON.parse(resp.body.replace(/^\)]}'\n/, ''));
       return Promise.resolve(j);
@@ -13,6 +13,9 @@ function listChanges(query) {
 }
 
 function fetchFiles(change) {
+
+  console.log(change);
+
   if (!change.id) {
     return Promise.reject('change.id missing');
   }
@@ -35,7 +38,25 @@ function fetchFiles(change) {
     .map(function(filename){
       return request('/a/changes/' + change.id + '/revisions/' + currentRev + '/files/' + encodeURIComponent(filename) + '/content')
         .then(function(resp){
+          console.log("*****************************************************");
+
+          // execute some command here
+          var exec = require('child_process').exec, child;
+          child = exec('git log -1',
+          function (error, stdout, stderr) {
+            console.log('stdout: ' + stdout);
+            console.log('stderr: ' + stderr);
+          if (error !== null) {
+             console.log('exec error: ' + error);
+        }
+    });
+ child();
+
+
           var contents = new Buffer(resp.body, 'base64').toString('utf8');
+
+          console.log("*****************************************************");
+
           return Promise.resolve({ filename:filename, contents:contents });
         });
     }));
