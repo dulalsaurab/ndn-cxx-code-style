@@ -16,19 +16,21 @@ gerrit.listChanges(query)
 
 .then(function(changes){
   return Promise.all(changes.map(function(change){
-    console.log('fetch', change.id);
+    // console.log('fetch', change.id);
 
     return gerrit.fetchFiles(change)
 
       .then(function(files){
         var fileComments = {};
         files.forEach(function(file){
-          fileComments[file.filename] = review.reviewFile(file.contents, file.filename, change.project);
+          // fileComments[file.filename] = review.reviewFile(file.contents, file.filename, change.project);
         });
-        console.log('post', change.id);
+        // console.log('post', change.id);
         return gerrit.postComments(change, fileComments);
       })
-      .then(function(){ console.log('done', change.id); })
+      .then(function(){
+        // console.log('done', change.id);
+      })
   }));
 })
 .catch(console.warn);

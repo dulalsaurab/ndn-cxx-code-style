@@ -23,7 +23,6 @@ require('./rules3').provideRules(addRule);
 function reviewFile(input, filename, repository) {
   var lines = input.split('\n');
   lines.unshift('');
-
   var comments = [];
   var i = 0;
   var currentRuleId = '';
@@ -58,8 +57,15 @@ function reviewFile(input, filename, repository) {
       context.rule.f.call(context, lines[i] || '', i == lines.length ? -1 : i);
     });
   }
+  console.log("In file: " + filename)
+  if(comments){
+      console.log(comments);
+  }
+  else {
+    console.log("All set, you don't have any code style error");
+  }
 
-  return comments;
+  // return comments;
 }
 
 exports.RULES = RULES;

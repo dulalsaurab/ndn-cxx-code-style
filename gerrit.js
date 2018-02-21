@@ -1,6 +1,7 @@
 (function(exports){
 var config = require('./config');
 var curl = require('./curl');
+var review = require('./review');
 
 var request = curl.request.bind(this, config.GERRIT_ROOT, ['--basic', '--user', [config.GERRIT_USER, config.GERRIT_HTTPPASSWD].join(':')]);
 
@@ -12,46 +13,33 @@ function listChanges(query) {
     });
 }
 function getFiles(){
-
+// git --git-dir=ndn-cxx-code-style/.git --work-tree=ndn-cxx-code-style/ diff HEAD~ --name-only
       const util = require('util');
       const exec = util.promisify(require('child_process').exec);
-      var abc;
-      async function lsExample() {
-        const { stdout, stderr } = await exec('git show --pretty="" --name-only');
-        // console.log('stdout:', stdout);
+      var root_dir = '/Users/saurabdulal/Documents/mini-ndn/mini-ndn/NLSR';
+      async function getCommitedFiles() {
+        // const { stdout, stderr } = await exec('git --git-dir='+ root_dir +'/.git show --pretty="" --name-only');
+        const { stdout, stderr } = await exec('git --git-dir='+ root_dir +'/.git --work-tree='+ root_dir+ ' diff HEAD~ --name-only');
         return stdout;
       }
-      lsExample().then(function(a){
-        var fileList = a.split("\n");
-          abc = fileList;
-          const { exec } = require('child_process');
-          // var comm1 = 'cat gerrit.js';
-          for (s of abc){
-            if (s){
-              var comm1 = 'cat ' + s.toString();
-              console.log(comm1);
-          exec(comm1, (err, stdout, stderr) => {
-            if(err){
-              console.error("bla bla");
-            }
-            console.log(stdout);
-          });
+      getCommitedFiles().then(function(response){
+        var fileList = response.split("\n");
+          for (file of fileList){
+            if (file){
+              var commandConstrut = 'cat ' + root_dir+'/'+file.toString();
+              async function catFiles() {
+                var fileCopy = file;
+                const { stdout, stderr } = await exec(commandConstrut);
+                return [stdout, fileCopy];
+              };
+              catFiles().then(function(response){
+                  review.reviewFile(response[0], response[1], "acb");
+              });
         }}
-        // for (s of fileList){
-        //   async function lsExample() {
-        //     const { stdout, stderr } = await exec('git show --pretty="" --name-only');
-        //     console.log('stdout:', stdout);
-        //     return stdout;
-        //   }
-        // }
-
       });
-      console.log(abc);
 }
 
 function fetchFiles(change) {
-
-  console.log(change);
 
   if (!change.id) {
     return Promise.reject('change.id missing');
@@ -94,8 +82,8 @@ function fetchFiles(change) {
           //   }
           // }
 
-          var contents = new Buffer(resp.body, 'base64').toString('utf8');
-          return Promise.resolve({ filename:filename, contents:contents });
+          // var contents = new Buffer(resp.body, 'base64').toString('utf8');
+          // return Promise.resolve({ filename:filename, contents:contents });
         });
     }));
 }
