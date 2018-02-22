@@ -1,36 +1,58 @@
-var dateFormat = require('date-format');
-var config = require('./config');
-var gerrit = require('./gerrit');
+
+
 var review = require('./review');
 
-var minDate = new Date();
-minDate.setDate(minDate.getDate() - config.RECENT_DAYS);
-var after = dateFormat.asString('yyyy-MM-dd hh:mm:ss O', minDate);
-var query = 'is:watched is:open label:Code-Style=0 after:"' + after + '"';
-// var query = '/a/changes/?q=4551'
-if (process.argv[2]) {
-  query = 'change:' + process.argv[2];
+function getFiles(){
+      const util = require('util');
+      const exec = util.promisify(require('child_process').exec);
+      var root_dir = '/Users/saurabdulal/Documents/mini-ndn/mini-ndn/NLSR';
+      async function getCommitedFiles() {
+        const { stdout, stderr } = await exec('git --git-dir='+ root_dir +'/.git --work-tree='+ root_dir+ ' diff HEAD~ --name-only');
+        return stdout;
+      }
+      getCommitedFiles().then(function(response){
+        var fileList = response.split("\n");
+          for (file of fileList){
+            if (file){
+              var commandConstrut = 'cat ' + root_dir+'/'+file.toString();
+              async function catFiles() {
+                var fileCopy = file;
+                const { stdout, stderr } = await exec(commandConstrut);
+                return [stdout, fileCopy];
+              };
+              catFiles().then(function(response){
+                  review.reviewFile(response[0], response[1], "acb");
+              });
+        }}
+      });
 }
+getFiles();
 
-gerrit.listChanges(query)
 
-.then(function(changes){
-  return Promise.all(changes.map(function(change){
-    // console.log('fetch', change.id);
+function postComments(change, fileComments) {
+  var j = {
+    labels: {},
+    comments: {}
+  };
+  var nComments = 0;
+  Object.keys(fileComments).forEach(function(filename){
+    var comments = fileComments[filename];
+    j.comments[filename] = comments.map(function(comment){
+      ++nComments;
+      return {
+        line: comment.line,
+        message: 'rule ' + comment.rule + '\n' + comment.msg
+      };
+    });
+  });
+  j.message = config.COVER_INFO;
+  j.labels = { "Code-Style": (nComments > 0 ? -1 : +1) };
 
-    return gerrit.fetchFiles(change)
-
-      .then(function(files){
-        var fileComments = {};
-        files.forEach(function(file){
-          // fileComments[file.filename] = review.reviewFile(file.contents, file.filename, change.project);
-        });
-        // console.log('post', change.id);
-        return gerrit.postComments(change, fileComments);
-      })
-      .then(function(){
-        // console.log('done', change.id);
-      })
-  }));
-})
-.catch(console.warn);
+  if (config.GERRIT_DRYRUN) {
+    console.log(JSON.stringify(j, null, 2));
+    return Promise.resolve('OK');
+  }
+  else {
+    return request('/a/changes/' + change.id + '/revisions/' + change.current_revision + '/review', JSON.stringify(j));
+  }
+}

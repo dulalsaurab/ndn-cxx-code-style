@@ -58,11 +58,12 @@ function reviewFile(input, filename, repository) {
     });
   }
   console.log("In file: " + filename)
-  if(comments){
+  if(comments.length > 0){
+
       console.log(comments);
   }
   else {
-    console.log("All set, you don't have any code style error");
+    console.log("\nYou don't have any code style error in file: " + filename + "\n");
   }
 
   // return comments;
