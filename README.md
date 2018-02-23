@@ -36,6 +36,8 @@ code-style
 Assuming you are inside a git repo, simple execute ```code-style``` to view the result
 
 Sample output: 
+![alt text](https://github.com/dulalsaurab/ndn-cxx-code-style/blob/master/code-style-bot-example?raw=true)
+
 
 #### Acknowledgments
 
