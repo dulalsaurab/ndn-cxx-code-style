@@ -57,7 +57,7 @@ function reviewFile(input, filename, repository) {
       context.rule.f.call(context, lines[i] || '', i == lines.length ? -1 : i);
     });
   }
-  console.log("In file: " + filename)
+  console.log("\nIn file: " + filename)
   if(comments.length > 0){
 
       console.log(comments);
