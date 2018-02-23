@@ -7,13 +7,12 @@ This tool checks code against [ndn-cxx Code Style and Coding Guidelines](https:/
 ### Prerequisites
 
 **node** is required to execute **.js** file in local env
-
-Node installation guide for MAC: <https://nodejs.org/en/download/>   
-Node installation guide for Linux: <https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions>  
-**Note:** apt-get install old version of node, make sure to follow the instruction above. 
 ```
 e.g. node process.cli.js
 ```
+Node installation guide for MAC: <https://nodejs.org/en/download/>   
+Node installation guide for Linux: <https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions>  
+**Note:** apt-get install old version of node, make sure to follow the instruction above. 
 
 ### Installing
 
