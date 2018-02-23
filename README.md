@@ -17,13 +17,12 @@ e.g. node process.cli.js
 
 ### Installing
 
-1. Clone this repo on your local machine, ``` git clone https://github.com/dulalsaurab/ndn-cxx-code-style.git ```
+1. Clone this repo on your local machine, ``` git clone --depth 1 https://github.com/dulalsaurab/ndn-cxx-code-style.git ```
 2. ```cd ndn-cxx-code-style```
 3. run command ```./init-script.sh```
    This will create an alias for code-style in *bashrc* or *bash_profile* 
-4. run ```source ~/.bashrc``` - for lunux , ```source ~/.bash_profile``` for mac 
-
-now you can run ***code-style*** command from your terminal
+4. run ```source ~/.bashrc``` - for linux , ```source ~/.bash_profile``` for mac 
+5. cd to your git repo, and you can run ***code-style*** command from your terminal 
 
 ```
 code-style
